@@ -65,11 +65,17 @@ class Poll::Question < ApplicationRecord
     votation_type&.essay?
   end
 
+  def not_essay?
+    !votation_type&.essay?
+  end
+
   def max_votes
     if multiple?
       votation_type.max_votes
-    else
+    elsif unique?
       1
+    elsif essay?
+      nil
     end
   end
 
