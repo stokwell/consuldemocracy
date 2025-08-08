@@ -95,20 +95,38 @@ RSpec.describe Poll::Question do
       let(:answer_a) { question.question_options.find_by(title: "Answer A") }
 
       it "sets option and answer(title)" do
-        answer = question.find_or_initialize_user_answer(user, answer_a.id)
+        answer = question.find_or_initialize_user_answer(user, answer_a.id, nil)
 
         expect(answer.option).to eq answer_a
         expect(answer.answer).to eq "Answer A"
       end
 
       it "sets option and answer to nil when option_id is invalid or nil" do
-        invalid = question.find_or_initialize_user_answer(user, 999999)
+        invalid = question.find_or_initialize_user_answer(user, 999999, nil)
         expect(invalid.option).to be nil
         expect(invalid.answer).to be nil
 
-        blank = question.find_or_initialize_user_answer(user, nil)
+        blank = question.find_or_initialize_user_answer(user, nil, "ignored")
         expect(blank.option).to be nil
         expect(blank.answer).to be nil
+      end
+    end
+
+    context "essay question" do
+      let(:question) { create(:poll_question_essay) }
+
+      it "ignores option_id and assigns answer, with option set to nil" do
+        answer = question.find_or_initialize_user_answer(user, 123, "Hi")
+        expect(answer.option).to be nil
+        expect(answer.answer).to eq "Hi"
+      end
+
+      it "reuses the existing poll answer for the user and updates answer" do
+        existing = create(:poll_answer, question: question, author: user, answer: "Before")
+
+        result = question.find_or_initialize_user_answer(user, nil, "After")
+        expect(result).to eq existing
+        expect(result.answer).to eq "After"
       end
     end
   end
