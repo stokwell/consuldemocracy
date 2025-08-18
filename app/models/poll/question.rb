@@ -93,7 +93,11 @@ class Poll::Question < ApplicationRecord
       answer.answer = essay_answer
     else
       answer.option = option
-      answer.answer = option&.title
+      if option&.open_text?
+        answer.answer = essay_answer
+      else
+        answer.answer = option&.title
+      end
     end
 
     answer

@@ -7,9 +7,9 @@ class Poll::Answer < ApplicationRecord
 
   validates :question, presence: true
   validates :author, presence: true
-  validates :answer, presence: true
+  validates :answer, presence: true, unless: ->(poll_answer) { poll_answer.option&.open_text? }
   validates :answer, inclusion: { in: ->(poll_answer) { poll_answer.option.possible_answers }},
-                     if: ->(poll_answer) { poll_answer.option.present? }
+                     if: ->(poll_answer) { poll_answer.option.present? && !poll_answer.option.open_text? }
   validates :option, uniqueness: { scope: :author_id }, allow_nil: true
 
   validate :max_votes
