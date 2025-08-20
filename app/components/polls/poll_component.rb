@@ -12,13 +12,21 @@ class Polls::PollComponent < ApplicationComponent
       t("polls.dates", open_at: l(poll.starts_at.to_date), closed_at: l(poll.ends_at.to_date))
     end
 
-    def link_to_poll(text, poll, options = {})
+    def text_for_poll_header
+      poll.questions.one? ? poll.questions.first.title : poll.name
+    end
+
+    def text_for_poll_button
+      poll.expired? ? t("polls.index.participate_button_expired") : t("polls.index.participate_button")
+    end
+
+    def path
       if can?(:results, poll)
-        link_to text, results_poll_path(id: poll.slug || poll.id), options
+        results_poll_path(id: poll.slug || poll.id)
       elsif can?(:stats, poll)
-        link_to text, stats_poll_path(id: poll.slug || poll.id), options
+        stats_poll_path(id: poll.slug || poll.id)
       else
-        link_to text, poll_path(id: poll.slug || poll.id), options
+        poll_path(id: poll.slug || poll.id)
       end
     end
 end
