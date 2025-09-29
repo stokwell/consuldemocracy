@@ -86,4 +86,30 @@ RSpec.describe Poll::Question do
       expect(question.options_total_votes).to eq 3
     end
   end
+
+  describe "#find_or_initialize_user_answer" do
+    let(:user) { create(:user) }
+
+    context "non essay question" do
+      let(:question) { create(:poll_question_multiple, :abc) }
+      let(:answer_a) { question.question_options.find_by(title: "Answer A") }
+
+      it "sets option and answer(title)" do
+        answer = question.find_or_initialize_user_answer(user, answer_a.id)
+
+        expect(answer.option).to eq answer_a
+        expect(answer.answer).to eq "Answer A"
+      end
+
+      it "sets option and answer to nil when option_id is invalid or nil" do
+        invalid = question.find_or_initialize_user_answer(user, 999999)
+        expect(invalid.option).to be nil
+        expect(invalid.answer).to be nil
+
+        blank = question.find_or_initialize_user_answer(user, nil)
+        expect(blank.option).to be nil
+        expect(blank.answer).to be nil
+      end
+    end
+  end
 end
