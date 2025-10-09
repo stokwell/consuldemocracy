@@ -1,6 +1,7 @@
 name: build_push.yml
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - development
